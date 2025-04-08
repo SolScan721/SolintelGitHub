@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolIntel - AI-Powered Solana Trading Analytics</title>
+    <link rel="icon" href="data:image/x-icon;base64,..." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #03a9f4;
+            --secondary-color: #9c27b0;
+            --dark-color: #1a2035;
+            --light-color: #f8f9fa;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --extreme-danger-color: #b71c1c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            background-color: var(--light-color);
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .logo img {
+            height: 60px;
+            margin-right: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-item h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .feature-item:nth-child(2) {
+            border-top-color: var(--secondary-color);
+        }
+        
+        .feature-item:nth-child(2) h3 {
+            color: var(--secondary-color);
+        }
+        
+        .feature-item:nth-child(3) {
+            border-top-color: #ff5722;
+        }
+        
+        .feature-item:nth-child(3) h3 {
+            color: #ff5722;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, button, select {
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        input, select {
+            width: 100%;
+            border: 1px solid #ddd;
+            background: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(3, 169, 244, 0.3);
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        button:hover {
+            box-shadow: 0 6px 20px rgba(3, 169, 244, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        #results {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .result-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-section:last-child {
+            border-bottom: none;
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .risk-low { color: var(--success-color); }
+        .risk-medium { color: var(--warning-color); }
+        .risk-high { color: var(--danger-color); }
+        .risk-extreme { color: var(--extreme-danger-color); }
+        
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendation-list li {
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: #f5f9ff;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+        
+        .loading .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            border: 5px solid rgba(3, 169, 244, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .tab-container {
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .data-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .data-item strong {
+            color: #555;
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        
+        .data-item span {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-container p {
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            background: var(--dark-color);
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .social-links a {
+            margin: 0 10px;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #e0f7fa;
+            color: #0288d1;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="SolintelLogo.png" alt="SolIntel Logo">
+                <h1>SolIntel</h1>
+            </div>
+            <p class="subtitle">AI-Powered Solana Trading Analytics Platform</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Advanced Token Analysis</h2>
+            <p>Enter a Solana token address to get comprehensive risk assessment, whale activity monitoring, and sentiment analysis.</p>
+            
+            <form id="tokenForm">
+                <div class="form-group">
+                    <label for="tokenAddress">Token Address</label>
+                    <input type="text" id="tokenAddress" placeholder="Enter Solana token address" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tokenSymbol">Token Symbol (Optional)</label>
+                    <input type="text" id="tokenSymbol" placeholder="E.g., SOL, BONK, JTO">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeWhaleAnalysis" checked>
+                    <label for="includeWhaleAnalysis">Include Whale Activity Analysis</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSentimentAnalysis" checked>
+                    <label for="includeSentimentAnalysis">Include Market Sentiment Analysis</label>
+                </div>
+                
+                <button type="submit">Analyze Token</button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Our AI is performing deep analysis of on-chain data, social sentiment, and market patterns...</p>
+            </div>
+            
+            <div id="results">
+                <div class="tab-container">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="risk-analysis">Risk Analysis</div>
+                        <div class="tab" data-tab="whale-activity">Whale Activity</div>
+                        <div class="tab" data-tab="sentiment-analysis">Market Sentiment</div>
+                        <div class="tab" data-tab="recommendations">Recommendations</div>
+                    </div>
+                </div>
+                
+                <div id="risk-analysis" class="tab-content active">
+                    <div class="result-section">
+                        <h3>Token Information</h3>
+                        <div class="data-grid" id="tokenInfo"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Risk Score</h3>
+                        <div id="riskScore"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Risk Components</h3>
+                        <div class="data-grid" id="riskComponents"></div>
+                    </div>
+                </div>
+                
+                <div id="whale-activity" class="tab-content">
+                    <div class="result-section">
+                        <h3>Whale Activity Summary</h3>
+                        <div class="data-grid" id="whaleActivitySummary"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Price Impact Prediction</h3>
+                        <div id="priceImpactPrediction"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Detected Patterns</h3>
+                        <div id="detectedPatterns"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Whale Clusters</h3>
+                        <div id="whaleClusters"></div>
+                    </div>
+                </div>
+                
+                <div id="sentiment-analysis" class="tab-content">
+                    <div class="result-section">
+                        <h3>Overall Sentiment</h3>
+                        <div id="overallSentiment"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Sentiment by Source</h3>
+                        <div class="data-grid" id="sentimentSources"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Key Topics</h3>
+                        <div id="keyTopics"></div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Insights</h3>
+                        <ul class="recommendation-list" id="sentimentInsights"></ul>
+                    </div>
+                </div>
+                
+                <div id="recommendations" class="tab-content">
+                    <div class="result-section">
+                        <h3>Trading Recommendations</h3>
+                        <ul class="recommendation-list" id="tradingRecommendations"></ul>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>Risk Mitigation</h3>
+                        <ul class="recommendation-list" id="riskMitigation"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <h3>Intelligent Trading Pattern Recognition</h3>
+                <p>Monitor whale wallet activity, detect market manipulation patterns, and receive price movement predictions with 2-3 hour advance warnings.</p>
+                <ul class="recommendation-list" style="margin-top: 1rem;">
+                    <li>Whale cluster identification</li>
+                    <li>Wash trading detection</li>
+                    <li>Pump & dump pattern recognition</li>
+                </ul>
+            </div>
+            
+            <div class="feature-item">
+                <h3>Token Risk Analysis</h3>
+                <p>Get comprehensive contract security evaluation, liquidity risk assessment, and automated scam detection for any Solana token.</p>
+                <ul class="recommendation-list" style="margin-top: 1rem;">
+                    <li>Contract security auditing</li>
+                    <li>Liquidity pool analysis</li>
+                    <li>Rugpull vulnerability detection</li>
+                </ul>
+            </div>
+            
+            <div class="feature-item">
+                <h3>Personalized Trading Assistant</h3>
+                <p>Benefit from AI-powered sentiment analysis across Twitter, Reddit, Discord, and news sources, with natural language interaction.</p>
+                <ul class="recommendation-list" style="margin-top: 1rem;">
+                    <li>Multi-source sentiment analysis</li>
+                    <li>Key topic identification</li>
+                    <li>Personalized insights & recommendations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="logo" style="margin-bottom: 0.5rem;">
+                <img src="SolintelLogo.png" alt="SolIntel Logo" style="height: 40px;">
+            </div>
+            <p style="margin-bottom: 1rem;">Transforming blockchain data into actionable intelligence, one transaction at a time.</p>
+            
+            <div class="social-links">
+                <a href="https://x.com/SolIntelAI" target="_blank">Twitter @SolIntelAI</a>
+                <a href="http://www.solintel.agency" target="_blank">www.solintel.agency</a>
+            </div>
+            
+            <p style="font-size: 0.8rem; margin-top: 1.5rem; opacity: 0.7;">
+                Disclaimer: This is a demonstration implementation. Always perform your own research before making investment decisions.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab).classList.add('active');
+                });
+            });
+            
+            // Form submission
+            document.getElementById('tokenForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const tokenAddress = document.getElementById('tokenAddress').value;
+                const tokenSymbol = document.getElementById('tokenSymbol').value;
+                const includeWhaleAnalysis = document.getElementById('includeWhaleAnalysis').checked;
+                const includeSentimentAnalysis = document.getElementById('includeSentimentAnalysis').checked;
+                
+                if (!tokenAddress) return;
+                
+                // Show loading state
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('results').style.display = 'none';
+                
+                // Send request to backend API
+                fetch('/api/analyze-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        token_address: tokenAddress,
+                        token_symbol: tokenSymbol,
+                        include_whale_analysis: includeWhaleAnalysis,
+                        include_sentiment_analysis: includeSentimentAnalysis
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading state
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results').style.display = 'block';
+                    
+                    // Process and display results
+                    displayRiskAnalysis(data);
+                    
+                    if (includeWhaleAnalysis && data.whale_analysis) {
+                        displayWhaleAnalysis(data.whale_analysis);
+                    }
+                    
+                    if (includeSentimentAnalysis && data.sentiment_analysis) {
+                        displaySentimentAnalysis(data.sentiment_analysis);
+                    }
+                    
+                    // Display recommendations
+                    displayRecommendations(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loading').style.display = 'none';
+                    alert('Analysis failed, please try again later');
+                });
+            });
+            
+            function displayRiskAnalysis(data) {
+                // Display token information
+                const tokenInfoEl = document.getElementById('tokenInfo');
+                tokenInfoEl.innerHTML = `
+                    <div class="data-item">
+                        <strong>Name</strong>
+                        <span>${data.token_info.name}</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Symbol</strong>
+                        <span>${data.token_info.symbol}</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Total Supply</strong>
+                        <span>${data.token_info.total_supply.toLocaleString()}</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Decimals</strong>
+                        <span>${data.token_info.decimals}</span>
+                    </div>
+                `;
+                
+                // Display risk score
+                const score = data.risk_analysis.overall_risk_score;
+                let riskClass = 'risk-extreme';
+                if (score >= 80) riskClass = 'risk-low';
+                else if (score >= 60) riskClass = 'risk-medium';
+                else if (score >= 40) riskClass = 'risk-high';
+                
+                const riskScoreEl = document.getElementById('riskScore');
+                riskScoreEl.innerHTML = `
+                    <div class="score-display ${riskClass}">${Math.round(score)}/100</div>
+                    <p style="text-align: center; margin-bottom: 1rem;">Risk Level: <strong>${data.risk_analysis.risk_level}</strong></p>
+                `;
+                
+                // Display risk components
+                const riskComponentsEl = document.getElementById('riskComponents');
+                riskComponentsEl.innerHTML = `
+                    <div class="data-item">
+                        <strong>Liquidity Risk</strong>
+                        <span>${Math.round(data.risk_analysis.liquidity_risk.score)}/100</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Contract Security</strong>
+                        <span>${Math.round(data.risk_analysis.code_risk.score)}/100</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Transaction Patterns</strong>
+                        <span>${Math.round(data.risk_analysis.transaction_risk.score)}/100</span>
+                    </div>
+                `;
+            }
+            
+            function displayWhaleAnalysis(whaleData) {
+                // Display whale activity summary
+                const summaryEl = document.getElementById('whaleActivitySummary');
+                
+                summaryEl.innerHTML = `
+                    <div class="data-item">
+                        <strong>Whale Activity Score</strong>
+                        <span>${(whaleData.whale_activity_score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Manipulation Probability</strong>
+                        <span>${(whaleData.manipulation_probability * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Whale Clusters</strong>
+                        <span>${whaleData.whale_clusters ? whaleData.whale_clusters.length : 0}</span>
+                    </div>
+                    <div class="data-item">
+                        <strong>Detected Patterns</strong>
+                        <span>${whaleData.detected_patterns ? whaleData.detected_patterns.length : 0}</span>
+                    </div>
+                `;
+                
+                // Display price impact prediction
+                const predictionEl = document.getElementById('priceImpactPrediction');
+                const prediction = whaleData.prediction || {};
+                
+                predictionEl.innerHTML = `
+                    <p style="margin-bottom: 1rem;">Based on whale activity, we predict:</p>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <strong>Price Impact</strong>
+                            <span>${prediction.price_impact_prediction || 'No prediction'}</span>
+                        </div>
+                        <div class="data-item">
+                            <strong>Confidence</strong>
+                            <span>${prediction.confidence ? (prediction.confidence * 100).toFixed(1) + '%' : 'N/A'}</span>
+                        </div>
+                        <div class="data-item">
+                            <strong>Time Horizon</strong>
+                            <span>${prediction.time_horizon || 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Display detected patterns
+                const patternsEl = document.getElementById('detectedPatterns');
+                const patterns = whaleData.detected_patterns || [];
+                
+                if (patterns.length === 0) {
+                    patternsEl.innerHTML = `<p>No suspicious patterns detected.</p>`;
+                } else {
+                    let patternsHtml = `<ul class="recommendation-list">`;
+                    
+                    patterns.forEach(pattern => {
+                        const severityStr = pattern.severity ? 
+                            `Severity: ${(pattern.severity * 100).toFixed(0)}%` : '';
+                            
+                        patternsHtml += `
+                            <li>
+                                <strong>${pattern.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                                ${severityStr ? ' - ' + severityStr : ''}
+                            </li>
+                        `;
+                    });
+                    
+                    patternsHtml += `</ul>`;
+                    patternsEl.innerHTML = patternsHtml;
+                }
+                
+                // Display whale clusters
+                const clustersEl = document.getElementById('whaleClusters');
+                const clusters = whaleData.whale_clusters || [];
+                
+                if (clusters.length === 0) {
+                    clustersEl.innerHTML = `<p>No significant whale clusters detected.</p>`;
+                } else {
+                    let clustersHtml = ``;
+                    
+                    clusters.forEach((cluster, i) => {
+                        clustersHtml += `
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4>Cluster ${i+1}</h4>
+                                <div class="data-grid" style="margin-top: 0.5rem;">
+                                    <div class="data-item">
+                                        <strong>Addresses</strong>
+                                        <span>${cluster.size}</span>
+                                    </div>
+                                    <div class="data-item">
+                                        <strong>Total Value</strong>
+                                        <span>$${Math.round(cluster.total_value).toLocaleString()}</span>
+                                    </div>
+                                    <div class="data-item">
+                                        <strong>Risk Score</strong>
+                                        <span>${(cluster.risk_score * 100).toFixed(1)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    clustersEl.innerHTML = clustersHtml;
+                }
+            }
+            
+            function displaySentimentAnalysis(sentimentData) {
+                // Display overall sentiment
+                const sentimentEl = document.getElementById('overallSentiment');
+                const score = sentimentData.overall_sentiment;
+                
+                let sentimentClass = 'risk-extreme';
+                if (score >= 0.6) sentimentClass = 'risk-low';
+                else if (score >= 0.2) sentimentClass = 'risk-medium';
+                else if (score >= -0.2) sentimentClass = '';
+                else if (score >= -0.6) sentimentClass = 'risk-high';
+                
+                sentimentEl.innerHTML = `
+                    <div class="score-display ${sentimentClass}">${(score * 100).toFixed(0)}</div>
+                    <p style="text-align: center; margin-bottom: 1rem;">${sentimentData.sentiment_label}</p>
+                `;
+                
+                // Display sentiment sources
+                const sourcesEl = document.getElementById('sentimentSources');
+                const sources = sentimentData.source_sentiment || {};
+                
+                sourcesEl.innerHTML = '';
+                
+                for (const [source, value] of Object.entries(sources)) {
+                    if (typeof value === 'number') {
+                        let sourceClass = '';
+                        if (value >= 0.6) sourceClass = 'color: var(--success-color);';
+                        else if (value >= 0.2) sourceClass = 'color: var(--warning-color);';
+                        else if (value <= -0.6) sourceClass = 'color: var(--extreme-danger-color);';
+                        else if (value <= -0.2) sourceClass = 'color: var(--danger-color);';
+                        
+                        sourcesEl.innerHTML += `
+                            <div class="data-item">
+                                <strong>${source.charAt(0).toUpperCase() + source.slice(1)}</strong>
+                                <span style="${sourceClass}">${(value * 100).toFixed(0)}</span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Display key topics
+                const topicsEl = document.getElementById('keyTopics');
+                const topics = sentimentData.key_topics || [];
+                
+                if (topics.length === 0) {
+                    topicsEl.innerHTML = `<p>No significant topics detected.</p>`;
+                } else {
+                    let topicsHtml = `<div>`;
+                    
+                    topics.forEach(topic => {
+                        if (topic.words && topic.words.length > 0) {
+                            topicsHtml += topic.words.map(word => 
+                                `<span class="tag">${word}</span>`
+                            ).join(' ');
+                        }
+                    });
+                    
+                    topicsHtml += `</div>`;
+                    topicsEl.innerHTML = topicsHtml;
+                }
+                
+                // Display insights
+                const insightsEl = document.getElementById('sentimentInsights');
+                const insights = sentimentData.insights || [];
+                
+                insightsEl.innerHTML = '';
+                
+                insights.forEach(insight => {
+                    insightsEl.innerHTML += `<li>${insight}</li>`;
+                });
+            }
+            
+            function displayRecommendations(data) {
+                // Display recommendations
+                const recommendationsEl = document.getElementById('tradingRecommendations');
+                const recommendations = data.recommendations || [];
+                
+                recommendationsEl.innerHTML = '';
+                recommendations.forEach(rec => {
+                    recommendationsEl.innerHTML += `<li>${rec}</li>`;
+                });
+                
+                // Display risk mitigation recommendations
+                const mitigationEl = document.getElementById('riskMitigation');
+                mitigationEl.innerHTML = '';
+                
+                // Add risk-specific recommendations
+                if (data.risk_analysis && data.risk_analysis.overall_risk_score < 40) {
+                    mitigationEl.innerHTML += `
+                        <li>High risk token - consider implementing a strict stop-loss strategy</li>
+                        <li>Limit position size to funds you can afford to lose completely</li>
+                    `;
+                } else if (data.risk_analysis && data.risk_analysis.overall_risk_score < 60) {
+                    mitigationEl.innerHTML += `
+                        <li>Moderate risk - consider a 5-10% stop-loss</li>
+                        <li>Monitor contract owner actions closely</li>
+                    `;
+                }
+                
+                // Add whale-specific recommendations
+                if (data.whale_analysis && data.whale_analysis.manipulation_probability > 0.5) {
+                    mitigationEl.innerHTML += `
+                        <li>High manipulation risk - be cautious with entry timing</li>
+                        <li>Consider trading only during periods of high liquidity</li>
+                    `;
+                }
+                
+                // Add sentiment-specific recommendations
+                if (data.sentiment_analysis && data.sentiment_analysis.overall_sentiment < -0.3) {
+                    mitigationEl.innerHTML += `
+                        <li>Negative market sentiment - consider waiting for sentiment to improve</li>
+                        <li>Focus on tokens with stronger community support</li>
+                    `;
+                }
+                
+                // If no specific recommendations, add some generic ones
+                if (mitigationEl.innerHTML === '') {
+                    mitigationEl.innerHTML = `
+                        <li>Always diversify your portfolio across multiple tokens</li>
+                        <li>Set appropriate stop-loss levels to protect your capital</li>
+                        <li>Never invest more than you can afford to lose in any single token</li>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
